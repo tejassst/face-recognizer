@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "name": "Frontend (React Native)",
+      "path": "."
+    },
+    {
+      "name": "Backend (FastAPI)",
+      "path": "backend"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder:Backend (FastAPI)}/venv/bin/python"
+  }
+}

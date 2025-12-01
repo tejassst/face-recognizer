@@ -1,0 +1,143 @@
+import { StyleSheet } from 'react-native';
+
+export const cameraStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  message: {
+    textAlign: 'center',
+    paddingBottom: 20,
+    color: '#fff',
+    fontSize: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 60,
+    marginBottom: 20,
+  },
+  camera: {
+    flex: 1,
+  },
+  cameraOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  faceFrame: {
+    width: 250,
+    height: 300,
+    borderWidth: 3,
+    borderColor: '#00ff00',
+    borderRadius: 20,
+    backgroundColor: 'transparent',
+  },
+  instructions: {
+    position: 'absolute',
+    top: 60,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  instructionText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 40,
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    gap: 50,
+    width: '100%',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  captureButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#ddd',
+  },
+  captureButtonInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#fff',
+  },
+  captureButtonDisabled: {
+    opacity: 0.5,
+  },
+  preview: {
+    flex: 1,
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 20,
+  },
+  previewButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+  },
+  button: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    minWidth: 100,
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  retakeButton: {
+    backgroundColor: '#666',
+  },
+  addButton: {
+    backgroundColor: '#FFA500', // Orange color for "Add to DB"
+  },
+  recognizeButton: {
+    backgroundColor: '#00ff00',
+  },
+  buttonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  galleryButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  galleryButtonText: {
+    fontSize: 28,
+  },
+  backendButton: {
+    position: 'absolute',
+    top: 100,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+});

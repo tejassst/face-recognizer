@@ -48,3 +48,10 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+sudo firewall-cmd --add-port=8081/tcp --permanent
+sudo firewall-cmd --reload
+success
+success
+
+To fix firewall errors
