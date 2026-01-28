@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { cameraStyles as styles } from './styles/cameraStyles';
 
-const API_BASE_URL = 'http://10.200.158.245:8000';
+const API_BASE_URL = 'http://192.168.1.155:  8000';
 
 export default function App() {
   const [permission, requestPermission] = useCameraPermissions();

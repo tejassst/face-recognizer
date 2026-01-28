@@ -11,7 +11,7 @@ A cross-platform mobile application for real-time face recognition built with Re
 - **Database Management** - View and manage enrolled faces
 - **High Accuracy** - 98.4% recognition accuracy using Facenet512 model
 
-## 🛠️ Tech Stack
+## s Tech Stack
 
 ### Frontend
 

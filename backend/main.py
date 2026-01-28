@@ -1,7 +1,10 @@
+from urllib.request import Request
 from fastapi import HTTPException
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from deepface import DeepFace
+from openpyxl import Workbook, load_workbook
+from datetime import datetime
 from pathlib import Path
 import logging
 import os
@@ -16,8 +19,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-KNOWN_FACES_DIR = "models/known_faces"
+KNOWN_FACES_DIR = "../assets/known_faces"
 UPLOADS_DIR = "uploads"
+EXCEL_FILE = "../assets/log.xlsx"
 
 # Create directories if they don't exist
 os.makedirs(KNOWN_FACES_DIR, exist_ok=True)
@@ -244,6 +248,24 @@ async def add_face(file: UploadFile = File(...), name: str = "unknown"):
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
             
+@app.post("/log-scan")
+async def log_scan(request: Request):
+    data = await request.json()
+    name = data.get("name","Unknown")
+    confidence = data.get("confidence", 0)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    if not os.path.exists(EXCEL_FILE):
+        wb = Workbook()
+        ws = wb.active
+        ws.append(["Name", "Confidence", "Timestamp"])
+        wb.save(EXCEL_FILE)
+    
+    wb = load_workbook(EXCEL_FILE)
+    ws = wb.active
+    ws.append([name, confidence, timestamp])
+    wb.save(EXCEL_FILE)
+    return {"status": "success", "message": "Log saved successfully"}
 
 
 if __name__ == "__main__":
