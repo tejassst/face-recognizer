@@ -1,4 +1,4 @@
-from urllib.request import Request
+from fastapi import Request
 from fastapi import HTTPException
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +9,7 @@ from pathlib import Path
 import logging
 import os
 import warnings
+import numpy as np
 
 # Suppress TensorFlow warnings and force CPU
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -18,6 +19,20 @@ warnings.filterwarnings('ignore')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Helper function to convert numpy types to Python types for JSON serialization
+def convert_numpy_types(obj):
+    """Recursively convert numpy types to Python native types"""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    return obj
 
 KNOWN_FACES_DIR = "../assets/known_faces"
 UPLOADS_DIR = "uploads"
@@ -254,19 +269,119 @@ async def log_scan(request: Request):
     name = data.get("name","Unknown")
     confidence = data.get("confidence", 0)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    detector = data.get("detector", "unknown")
 
     if not os.path.exists(EXCEL_FILE):
         wb = Workbook()
         ws = wb.active
-        ws.append(["Name", "Confidence", "Timestamp"])
+        ws.append(["Name", "Confidence", "Detector Used","Timestamp"])
         wb.save(EXCEL_FILE)
     
     wb = load_workbook(EXCEL_FILE)
     ws = wb.active
-    ws.append([name, confidence, timestamp])
+    ws.append([name, confidence, detector, timestamp])
     wb.save(EXCEL_FILE)
     return {"status": "success", "message": "Log saved successfully"}
 
+@app.post("/analyze-emotion")
+async def analyze_emotion(file: UploadFile = File(...)):
+    """
+    Analyzes facial emotions in an uploaded image
+    Returns: dominant emotion, all emotion scores, age, gender, and race
+    """
+    temp_path = None
+    
+    try:
+        logger.info(f"Received image for emotion analysis: {file.filename}")
+        temp_path = os.path.join(UPLOADS_DIR, f"temp_{file.filename}")
+        
+        with open(temp_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        logger.info(f"Analyzing emotions...")
+        
+        # Try detectors in order
+        detectors = ['mtcnn', 'ssd', 'opencv']
+        analysis_result = None
+        used_detector = None
+        
+        for detector in detectors:
+            try:
+                logger.info(f"🔍 Trying detector: {detector}")
+                # DeepFace.analyze() detects face and analyzes emotions, age, gender, race
+                analysis_result = DeepFace.analyze(
+                    img_path=temp_path,
+                    actions=['emotion', 'age', 'gender', 'race'],
+                    detector_backend=detector,
+                    enforce_detection=True,
+                    silent=True
+                )
+                used_detector = detector
+                logger.info(f"✅ Success with {detector}")
+                break
+            except Exception as e:
+                logger.warning(f"❌ {detector} failed: {str(e)[:100]}")
+                continue
+        
+        if analysis_result is None:
+            return {
+                "error": "No face detected",
+                "status": "no_face_detected",
+                "message": "Could not detect a face in the image. Please try with better lighting."
+            }
+        
+        # Extract results (analysis_result can be a list or dict)
+        result = analysis_result[0] if isinstance(analysis_result, list) else analysis_result
+        
+        logger.info(f"Raw analysis result: {result}")
+        
+        # Get dominant emotion
+        dominant_emotion = result.get('dominant_emotion', 'unknown')
+        emotion_scores = result.get('emotion', {})
+        
+        # Get other attributes - handle both old and new DeepFace formats
+        age = result.get('age', 'N/A')
+        
+        # Gender can be either 'dominant_gender' or 'gender'
+        gender = result.get('dominant_gender') or result.get('gender', 'N/A')
+        if isinstance(gender, dict):
+            # If gender is a dict like {'Man': 99.5, 'Woman': 0.5}, get the dominant one
+            gender = max(gender, key=gender.get) if gender else 'N/A'
+        
+        # Race can be either 'dominant_race' or 'race'
+        race = result.get('dominant_race') or result.get('race', 'N/A')
+        if isinstance(race, dict):
+            # If race is a dict, get the dominant one
+            race = max(race, key=race.get) if race else 'N/A'
+        
+        logger.info(f"✅ Emotion detected: {dominant_emotion} (age: {age}, gender: {gender})")
+        
+        # Convert numpy types to Python types for JSON serialization
+        emotion_scores_clean = convert_numpy_types(emotion_scores)
+        age_clean = convert_numpy_types(age)
+        
+        return {
+            "status": "success",
+            "dominant_emotion": dominant_emotion,
+            "emotion_scores": emotion_scores_clean,
+            "age": age_clean,
+            "gender": gender,
+            "race": race,
+            "detector_used": used_detector,
+            "message": f"Analysis complete - feeling {dominant_emotion}"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error analyzing emotion: {e}")
+        return {
+            "error": "Error analyzing emotion",
+            "status": "error",
+            "message": str(e)
+        }
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
 
 if __name__ == "__main__":
     import uvicorn

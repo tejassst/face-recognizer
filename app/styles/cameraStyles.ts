@@ -97,10 +97,24 @@ export const cameraStyles = StyleSheet.create({
     borderRadius: 25,
     minWidth: 100,
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   retakeButton: {
+    color: '#fff',
     backgroundColor: '#666',
+    position: 'absolute',
+    top: 125,
+    zIndex: 100,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   addButton: {
     backgroundColor: '#FFA500', // Orange color for "Add to DB"
@@ -110,6 +124,12 @@ export const cameraStyles = StyleSheet.create({
   },
   buttonText: {
     color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  retakeButtonText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -126,6 +146,9 @@ export const cameraStyles = StyleSheet.create({
   },
   galleryButtonText: {
     fontSize: 28,
+  },
+  emotionButton: {
+    backgroundColor: '#fff',
   },
   backendButton: {
     position: 'absolute',
